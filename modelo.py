@@ -33,18 +33,19 @@ def crear_y_entrenar_modelo(datos):
     # 2. CREACIÓN DEL MODELO NEURONAL
     print("Construyendo la red neuronal...")
     model = Sequential()
-    
-    # Capa 1: Capa de entrada. Recibe los datos procesados.
-    # La activación 'relu' es un estándar que funciona muy bien para empezar.
-    model.add(Dense(16, input_shape=(X_train.shape[1],), activation='relu'))
-    
-    # Capa 2: Capa de salida. Su número de neuronas es igual al número de emociones.
-    # La activación 'softmax' es ideal para clasificación, ya que nos da la probabilidad
-    # de que la frase pertenezca a cada una de las categorías.
+
+    # Capa oculta 1: representación emocional suave (-1 a 1)
+    model.add(Dense(16, input_shape=(X_train.shape[1],), activation='tanh'))
+
+    # Capa oculta 2: refinamiento y separación más clara
+    model.add(Dense(8, activation='relu'))
+
+    # Capa de salida: probabilidad por emoción
     model.add(Dense(y_train.shape[1], activation='softmax'))
 
-    # Compilamos el modelo, definiendo cómo aprenderá.
+    # Compilación
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+
 
     # 3. ENTRENAMIENTO
     print("🧠 Entrenando al agente taoísta...")
@@ -53,6 +54,11 @@ def crear_y_entrenar_modelo(datos):
     model.fit(X_train, y_train, epochs=200, verbose=0)
     print("✅ Entrenamiento completado.\n")
     
+    # 🔍 Evaluación del modelo
+    loss, acc = model.evaluate(X_train, y_train, verbose=0)
+    print(f"📈 Accuracy del entrenamiento: {acc:.2f}")
+    print(f"📉 Loss: {loss:.4f}\n")
+
     # Devolvemos todo lo necesario para hacer predicciones
     return model, tokenizer, encoder
 
