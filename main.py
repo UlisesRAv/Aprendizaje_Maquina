@@ -1,48 +1,50 @@
 # =================================================================
-# AGENTE TAOÍSTA - ARCHIVO PRINCIPAL
+# AGENTE TAOÍSTA - ARCHIVO PRINCIPAL (CORREGIDO)
 # =================================================================
-# Este es el único archivo que necesitas ejecutar para iniciar el programa.
-
-# 1. IMPORTACIONES
-# -----------------------------------------------------------------
-# Importamos las variables y funciones de nuestros módulos.
-# `datos` y `citas_db` vienen de datos.py
-# `crear_y_entrenar_modelo` y `obtener_prediccion` vienen de modelo.py
 import os
+import random  # <--- ¡IMPORTANTE! Necesario para elegir citas al azar
 from datos import datos, citas_db
 from modelo import crear_y_entrenar_modelo, obtener_prediccion
 
-# Silenciar advertencias de TensorFlow que pueden ser muy ruidosas
+# Silenciar advertencias de TensorFlow
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-# 2. INICIALIZACIÓN Y ENTRENAMIENTO
+# 1. INICIALIZACIÓN
 # -----------------------------------------------------------------
-# Al iniciar, creamos y entrenamos el modelo con los datos de `datos.py`.
-# Este proceso solo ocurre una vez, al arrancar el script.
+print("🧠 Entrenando al agente... (esto puede tardar unos segundos)")
 modelo_entrenado, tokenizer, encoder = crear_y_entrenar_modelo(datos)
 
-# 3. MODO INTERACTIVO
+# 2. MODO INTERACTIVO
 # -----------------------------------------------------------------
-# Un bucle infinito para que puedas conversar con el agente.
-# El programa se quedará aquí esperando tus mensajes.
-print("🧘 El agente taoísta está listo. Escribe cómo te sientes o 'salir' para terminar.")
-print("-" * 70)
+print("\n" + "="*60)
+print("🧘 El Agente Taoísta está listo.")
+print("   Cuéntale tus penas, tus dudas o tu ira.")
+print("   Escribe 'salir' para terminar.")
+print("="*60 + "\n")
 
 while True:
-    # Pedimos al usuario que escriba algo.
-    entrada_usuario = input(">> Tú: ")
-    
-    # Si el usuario escribe "salir", rompemos el bucle y el programa termina.
-    if entrada_usuario.lower() == 'salir':
-        print("\n📜 Agente: Que encuentres tu propio camino. Adiós.")
+    try:
+        entrada_usuario = input(">> Tú: ")
+    except EOFError:
+        break
+
+    # Salida del programa
+    if entrada_usuario.lower() in ['salir', 'exit', 'bye', 'adios']:
+        print("\n📜 Agente: Que el Tao ilumine tu camino. Adiós.")
         break
     
-    # Si no, pasamos el texto al modelo para que nos dé una respuesta.
-    if entrada_usuario:
-        # Obtenemos la cita usando nuestro modelo entrenado y los datos.
-        cita_obtenida = obtener_prediccion(entrada_usuario, modelo_entrenado, tokenizer, encoder, citas_db)
+    if entrada_usuario.strip():
+        # Obtenemos la predicción (que ahora puede ser una LISTA de frases)
+        resultado = obtener_prediccion(entrada_usuario, modelo_entrenado, tokenizer, encoder, citas_db)
         
-        # Imprimimos la respuesta del agente.
-        print(f"\n📜 Agente: {cita_obtenida}\n")
+        # --- CAMBIO CLAVE AQUÍ ---
+        # Si recibimos una lista, elegimos una frase al azar.
+        if isinstance(resultado, list):
+            cita_final = random.choice(resultado)
+        else:
+            # Si por alguna razón es solo texto, lo usamos directo
+            cita_final = resultado
+            
+        print(f"\n📜 Agente: {cita_final}\n")
     else:
         print(f"\n📜 Agente: El silencio también es una respuesta.\n")
