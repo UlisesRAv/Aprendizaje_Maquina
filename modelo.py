@@ -4,6 +4,17 @@ from keras.models import Sequential
 from keras.layers import Dense, Dropout
 from keras_preprocessing.text import Tokenizer
 from sklearn.preprocessing import LabelBinarizer
+import unicodedata
+
+
+# ================= NORMALIZACIÓN DE TEXTO =======================
+def normalizar(texto):
+    texto = texto.lower()
+    texto = ''.join(
+        c for c in unicodedata.normalize('NFD', texto)
+        if unicodedata.category(c) != 'Mn'
+    )
+    return texto
 
 def crear_y_entrenar_modelo(datos):
     """
@@ -13,17 +24,15 @@ def crear_y_entrenar_modelo(datos):
     
     # 1. PREPROCESAMIENTO
     print("Preprocesando datos...")
-    frases = [d[0] for d in datos]
+    frases = [normalizar(d[0]) for d in datos]
     etiquetas = [d[1] for d in datos]
 
-    # --- AJUSTE CLAVE: AUMENTAR EL VOCABULARIO ---
-    # Antes tenías 100. Ahora lo subimos a 2000 para que entienda
-    # palabras específicas como "agobio", "vacío", "chingada", etc.
+    # --- AUMENTAR EL VOCABULARIO ---
     tokenizer = Tokenizer(num_words=2600, lower=True) 
     tokenizer.fit_on_texts(frases)
     
-    # Matrix binaria (Bag of Words)
-    X_train = tokenizer.texts_to_matrix(frases, mode='binary')
+    # Convertimos las frases a vectores TF-IDF para capturar la importancia de cada palabra
+    X_train = tokenizer.texts_to_matrix(frases, mode='tfidf')
 
     encoder = LabelBinarizer()
     y_train = encoder.fit_transform(etiquetas)
@@ -33,8 +42,8 @@ def crear_y_entrenar_modelo(datos):
     model = Sequential()
 
     # Capa de entrada + Oculta 1
-    # Aumentamos un poco las neuronas (de 16 a 32) para manejar la complejidad de las 25 emociones
-    model.add(Dense(32, input_shape=(X_train.shape[1],), activation='relu'))
+    # Aumentamos de las neuronas (de 16 a 32) para manejar la complejidad de las 25 emociones
+    model.add(Dense(32, input_shape=(X_train.shape[1],), activation='tanh'))
     
     # Dropout ayuda a que el modelo no "memorice" demasiado y generalice mejor
     model.add(Dropout(0.3)) 
@@ -48,10 +57,10 @@ def crear_y_entrenar_modelo(datos):
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     # 3. ENTRENAMIENTO
-    print("🧠 Entrenando al agente taoísta con sabiduría expandida...")
+    print("Entrenando al agente taoísta con sabiduría expandida...")
     # Aumentamos epochs a 250 para asegurar que aprenda bien las diferencias sutiles
     model.fit(X_train, y_train, epochs=250, verbose=0)
-    print("✅ Entrenamiento completado.\n")
+    print("Entrenamiento completado.\n")
     
     loss, acc = model.evaluate(X_train, y_train, verbose=0)
     print(f"📈 Precisión (Accuracy): {acc*100:.2f}%")
@@ -62,8 +71,11 @@ def obtener_prediccion(texto_usuario, model, tokenizer, encoder, citas_db):
     """
     Predice la emoción y devuelve la cita correspondiente.
     """
+    # Normalizar texto
+    texto_usuario = normalizar(texto_usuario)
+
     # Convertir texto nuevo a números usando el MISMO tokenizer entrenado
-    vector_texto = tokenizer.texts_to_matrix([texto_usuario], mode='binary')
+    vector_texto = tokenizer.texts_to_matrix([texto_usuario], mode='tfidf')
     
     prediccion = model.predict(vector_texto, verbose=0)
     

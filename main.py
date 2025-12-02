@@ -2,7 +2,7 @@
 # AGENTE TAOÍSTA - ARCHIVO PRINCIPAL (CORREGIDO)
 # =================================================================
 import os
-import random  # <--- ¡IMPORTANTE! Necesario para elegir citas al azar
+import random  # <--- Necesario para elegir citas al azar
 from datos import datos, citas_db
 from modelo import crear_y_entrenar_modelo, obtener_prediccion
 
@@ -11,13 +11,13 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # 1. INICIALIZACIÓN
 # -----------------------------------------------------------------
-print("🧠 Entrenando al agente... (esto puede tardar unos segundos)")
+print("Entrenando al agente... (esto puede tardar unos segundos)")
 modelo_entrenado, tokenizer, encoder = crear_y_entrenar_modelo(datos)
 
 # 2. MODO INTERACTIVO
 # -----------------------------------------------------------------
 print("\n" + "="*60)
-print("🧘 El Agente Taoísta está listo.")
+print("   El Agente Taoísta está listo.")
 print("   Cuéntale tus penas, tus dudas o tu ira.")
 print("   Escribe 'salir' para terminar.")
 print("="*60 + "\n")
@@ -30,7 +30,7 @@ while True:
 
     # Salida del programa
     if entrada_usuario.lower() in ['salir', 'exit', 'bye', 'adios']:
-        print("\n📜 Agente: Que el Tao ilumine tu camino. Adiós.")
+        print("\n Agente: Que el Tao ilumine tu camino. Adiós.")
         break
     
     if entrada_usuario.strip():
@@ -45,6 +45,6 @@ while True:
             # Si por alguna razón es solo texto, lo usamos directo
             cita_final = resultado
             
-        print(f"\n📜 Agente: {cita_final}\n")
+        print(f"\n Agente: {cita_final}\n")
     else:
-        print(f"\n📜 Agente: El silencio también es una respuesta.\n")
+        print(f"\n Agente: El silencio también es una respuesta.\n")

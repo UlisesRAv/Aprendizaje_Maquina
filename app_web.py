@@ -26,7 +26,7 @@ def get_img_as_base64(file):
 try:
     img_base64 = get_img_as_base64("club_penguin.gif")
 except:
-    st.error("⚠️ No encuentro el archivo 'club_penguin.gif'. Asegúrate de ponerlo en la misma carpeta.")
+    st.error("No encuentro el archivo 'club_penguin.gif'. Asegúrate de ponerlo en la misma carpeta.")
     st.stop()
 
 # --- ESTILOS CSS MEJORADOS (Zen & Layout) ---
@@ -199,7 +199,7 @@ def cargar_cerebro():
 modelo_entrenado, tokenizer, encoder = cargar_cerebro()
 
 if modelo_entrenado is None:
-    st.error("⚠️ El Sensei duerme. Ejecuta `entrenar.py` primero.")
+    st.error("El Sensei duerme. Ejecuta `entrenar.py` primero.")
     st.stop()
 
 # --- ESTADO ---
@@ -234,25 +234,28 @@ with col2:
     st.markdown("### ¿Qué pesa en tu mente hoy?")
     
     with st.form(key='chat_form', clear_on_submit=True):
-        user_input = st.text_input("", placeholder="Escribe tu inquietud aquí...")
+        user_input = st.text_input(" ", placeholder="Escribe tu inquietud aquí...", label_visibility="collapsed")
         st.write("") # Espacio
         submit_button = st.form_submit_button(label='🍃 Liberar Pensamiento')
 
     if submit_button and user_input:
         # Lógica de predicción
         with st.spinner("El viento susurra la respuesta..."):
-            time.sleep(1.2) # Pausa meditativa
+            time.sleep(1.2)
             try:
                 resultado = obtener_prediccion(user_input, modelo_entrenado, tokenizer, encoder, citas_db)
                 if isinstance(resultado, list):
                     respuesta = random.choice(resultado)
                 else:
                     respuesta = resultado
-                
+
                 st.session_state.ultimo_mensaje = respuesta
                 st.rerun()
-            except:
+
+            except Exception as e:
                 st.error("El silencio es la única respuesta hoy (Error).")
+                st.exception(e)  # Esto mostrará el error abajo
+
     
     st.markdown('</div>', unsafe_allow_html=True)
 

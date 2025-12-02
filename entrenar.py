@@ -2,12 +2,12 @@ import pickle
 from datos import datos
 from modelo import crear_y_entrenar_modelo
 
-print("⚙️ Iniciando proceso de entrenamiento...")
+print("Iniciando proceso de entrenamiento...")
 
 # 1. Entrenamos el modelo con todos los datos
 modelo, tokenizer, encoder = crear_y_entrenar_modelo(datos)
 
-print("\n💾 Guardando el conocimiento del sabio en el disco...")
+print("\n Guardando el conocimiento del sabio en el disco...")
 
 # 2. Guardamos el MODELO (la red neuronal)
 # Keras tiene su propio formato optimizado (.h5 o .keras)
@@ -25,4 +25,4 @@ with open('encoder.pkl', 'wb') as handle:
     pickle.dump(encoder, handle, protocol=pickle.HIGHEST_PROTOCOL)
 print("   -> Encoder guardado como 'encoder.pkl'")
 
-print("\n✨ ¡Listo! Ya puedes ejecutar la app web y cargará al instante.")
+print("\n ¡Listo! Ya puedes ejecutar la app web.")
