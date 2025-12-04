@@ -243,20 +243,49 @@ with col2:
         with st.spinner("El viento susurra la respuesta..."):
             time.sleep(1.2)
             try:
-                resultado = obtener_prediccion(user_input, modelo_entrenado, tokenizer, encoder, citas_db)
+                resultado, emocion_detectada, probabilidades = obtener_prediccion(
+                    user_input, modelo_entrenado, tokenizer, encoder, citas_db
+                )
+
                 if isinstance(resultado, list):
                     respuesta = random.choice(resultado)
                 else:
                     respuesta = resultado
 
                 st.session_state.ultimo_mensaje = respuesta
+                # Guardamos la emoción + porcentaje en sesión para mostrarlo abajo
+                st.session_state.emocion = emocion_detectada
+                st.session_state.probabilidades = probabilidades
+
                 st.rerun()
 
             except Exception as e:
                 st.error("El silencio es la única respuesta hoy (Error).")
                 st.exception(e)  # Esto mostrará el error abajo
 
-    
+    # --- MOSTRAR EMOCIÓN + PORCENTAJE ---
+    if "emocion" in st.session_state:
+        st.markdown("---")
+        st.write("### Resultado emocional detectado:")
+
+        emocion = st.session_state.emocion
+        probabilidades = st.session_state.probabilidades
+
+        # Obtener nombres de las clases
+        clases = list(encoder.classes_)
+
+        # Probabilidad de la emoción ganadora
+        indice = clases.index(emocion)
+        prob_emocion = probabilidades[indice] * 100
+
+        st.markdown(f"**Emoción predominante:** `{emocion}`")
+        st.markdown(f"**Confianza del modelo:** `{prob_emocion:.2f}%`")
+
+        # Mostrar tabla de todas las emociones
+        st.write("### Porcentajes de todas las emociones:")
+        for cls, prob in zip(clases, probabilidades):
+            st.write(f"- **{cls}** → `{prob*100:.2f}%`")
+
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer sutil

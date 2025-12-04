@@ -41,8 +41,6 @@ def crear_y_entrenar_modelo(datos):
     print(f"Construyendo red neuronal (Vocabulario: {X_train.shape[1]} palabras, Categorías: {y_train.shape[1]})...")
     model = Sequential()
 
-    # Capa de entrada + Oculta 1
-    # Aumentamos de las neuronas (de 16 a 32) para manejar la complejidad de las 25 emociones
     model.add(Dense(32, input_shape=(X_train.shape[1],), activation='tanh'))
     
     # Dropout ayuda a que el modelo no "memorice" demasiado y generalice mejor
@@ -74,25 +72,23 @@ def obtener_prediccion(texto_usuario, model, tokenizer, encoder, citas_db):
     # Normalizar texto
     texto_usuario = normalizar(texto_usuario)
 
-    # Convertir texto nuevo a números usando el MISMO tokenizer entrenado
+    # Convertir texto a vector numérico usando el tokenizer entrenado
     vector_texto = tokenizer.texts_to_matrix([texto_usuario], mode='tfidf')
-    
-    prediccion = model.predict(vector_texto, verbose=0)
-    
-    # Obtenemos el índice de la emoción más probable
+
+    # Predicción (vector con probabilidades para TODAS las emociones)
+    prediccion = model.predict(vector_texto, verbose=0)[0]
+
+    # Índice de la emoción con mayor probabilidad
     indice_ganador = np.argmax(prediccion)
-    
-    # Obtenemos la etiqueta de texto (ej: "euforia")
+
+    # Nombre de la emoción predicha
     etiqueta_ganadora = encoder.classes_[indice_ganador]
-    
-    # Confianza de la predicción (opcional, útil para depurar)
-    confianza = prediccion[0][indice_ganador]
-    
-    # Si la confianza es muy baja (el modelo está adivinando), podríamos manejarlo
-    # Pero por ahora, confiamos en el Tao.
-    
-    # Recuperamos la cita (o lista de citas) de la base de datos
+
+    # Obtener cita correspondiente
     try:
-        return citas_db[etiqueta_ganadora]
+        cita = citas_db[etiqueta_ganadora]
     except KeyError:
-        return ["El Tao es misterioso... no sé qué decirte sobre eso, pero respira."]
+        cita = "El Tao es misterioso... no sé qué decirte sobre eso, pero respira."
+
+    # Devolver: cita, emoción, probabilidades
+    return cita, etiqueta_ganadora, prediccion
