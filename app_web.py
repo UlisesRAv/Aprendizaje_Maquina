@@ -8,15 +8,14 @@ from keras.models import load_model
 from datos import citas_db
 from modelo import obtener_prediccion
 
-# --- CONFIGURACIÓN DE LA PÁGINA ---
+# CONFIGURACIÓN DE LA PÁGINA
 st.set_page_config(
     page_title="El Sensei del Tao", 
     page_icon="🐧", 
-    layout="wide",  # Usamos 'wide' para tener espacio lateral
+    layout="wide", 
     initial_sidebar_state="collapsed"
 )
 
-# --- FUNCIÓN PARA CARGAR IMAGEN LOCAL ---
 def get_img_as_base64(file):
     with open(file, "rb") as f:
         data = f.read()
@@ -26,7 +25,6 @@ def get_img_as_base64(file):
 try:
     img_base64 = get_img_as_base64("club_penguin.gif")
 except:
-    st.error("No encuentro el archivo 'club_penguin.gif'. Asegúrate de ponerlo en la misma carpeta.")
     st.stop()
 
 # --- ESTILOS CSS MEJORADOS (Zen & Layout) ---
@@ -185,7 +183,7 @@ h1 {{
 
 
 
-# --- CARGA DEL CEREBRO ---
+# CARGA DEL CEREBRO
 @st.cache_resource
 def cargar_cerebro():
     if not os.path.exists('cerebro_taoista.h5'): return None, None, None
@@ -202,18 +200,17 @@ if modelo_entrenado is None:
     st.error("El Sensei duerme. Ejecuta `entrenar.py` primero.")
     st.stop()
 
-# --- ESTADO ---
+# ESTADO
 if "ultimo_mensaje" not in st.session_state:
     st.session_state.ultimo_mensaje = "El vacío no está vacío..." 
 
-# --- TÍTULO ---
+# TÍTULO 
 st.markdown("<h1>⛩️ El Templo del Sensei ⛩️</h1>", unsafe_allow_html=True)
 st.write("") # Espaciador
 
-# --- LAYOUT DE 2 COLUMNAS ---
+# LAYOUT DE 2 COLUMNAS
 col1, col2 = st.columns([1.2, 1], gap="large")
 
-# --- COLUMNA 1: EL SENSEI (IMAGEN) ---
 with col1:
     # HTML del Pingüino con Marco Zen
     html_penguin = f"""
@@ -226,7 +223,7 @@ with col1:
     """
     st.markdown(html_penguin, unsafe_allow_html=True)
 
-# --- COLUMNA 2: EL CONFESIONARIO (INPUT) ---
+# CONFESIONARIO 
 with col2:
     st.markdown('<div class="input-panel">', unsafe_allow_html=True)
     
@@ -235,7 +232,7 @@ with col2:
     
     with st.form(key='chat_form', clear_on_submit=True):
         user_input = st.text_input(" ", placeholder="Escribe tu inquietud aquí...", label_visibility="collapsed")
-        st.write("") # Espacio
+        st.write("") 
         submit_button = st.form_submit_button(label='🍃 Liberar Pensamiento')
 
     if submit_button and user_input:
@@ -253,7 +250,6 @@ with col2:
                     respuesta = resultado
 
                 st.session_state.ultimo_mensaje = respuesta
-                # Guardamos la emoción + porcentaje en sesión para mostrarlo abajo
                 st.session_state.emocion = emocion_detectada
                 st.session_state.probabilidades = probabilidades
 
@@ -261,9 +257,9 @@ with col2:
 
             except Exception as e:
                 st.error("El silencio es la única respuesta hoy (Error).")
-                st.exception(e)  # Esto mostrará el error abajo
+                st.exception(e) 
 
-    # --- MOSTRAR EMOCIÓN + PORCENTAJE ---
+    # EMOCIÓN Y PORCENTAJE
     if "emocion" in st.session_state:
         st.markdown("---")
         st.write("### Resultado emocional detectado:")
@@ -271,7 +267,6 @@ with col2:
         emocion = st.session_state.emocion
         probabilidades = st.session_state.probabilidades
 
-        # Obtener nombres de las clases
         clases = list(encoder.classes_)
 
         # Probabilidad de la emoción ganadora
