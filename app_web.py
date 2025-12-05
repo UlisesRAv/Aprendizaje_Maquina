@@ -225,9 +225,7 @@ with col1:
 
 # CONFESIONARIO 
 with col2:
-    st.markdown('<div class="input-panel">', unsafe_allow_html=True)
-    
-    st.markdown('<p class="zen-text">"Vacía tu copa para que pueda ser llenada."</p>', unsafe_allow_html=True)
+
     st.markdown("### ¿Qué pesa en tu mente hoy?")
     
     with st.form(key='chat_form', clear_on_submit=True):
